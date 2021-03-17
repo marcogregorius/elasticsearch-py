@@ -5,6 +5,9 @@ except ImportError:
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
+import time
+import sys
+import logging
 
 from .exceptions import SerializationError, ImproperlyConfigured
 from .compat import string_types
@@ -35,7 +38,13 @@ class JSONSerializer(object):
 
     def loads(self, s):
         try:
-            return json.loads(s)
+            now = time.time()
+            res = json.loads(s)
+            logging.debug("Deserializing JSON of {} bytes takes {} ms".format(
+                sys.getsizeof(s),
+                (time.time() - now) * 1000
+            ))
+            return res
         except (ValueError, TypeError) as e:
             raise SerializationError(s, e)
 
